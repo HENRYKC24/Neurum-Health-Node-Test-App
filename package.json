@@ -4,6 +4,8 @@
   "description": "Neuron Health Assessment",
   "main": "./src/server.js",
   "scripts": {
+    "test": "nyc --reporter=html --reporter=text mocha --exit --require @babel/register --recursive ./src/",
+    "coverage": "nyc --reporter=lcov --reporter=text-lcov npm test",
     "clean": "rm -rf build && mkdir build",
     "build-babel": "babel -d ./build ./src -s",
     "build": "npm run clean && npm run build-babel",
@@ -22,6 +24,12 @@
     "@babel/cli": "^7.17.10",
     "@babel/core": "^7.18.2",
     "@babel/preset-env": "^7.18.2",
-    "@babel/register": "^7.17.7"
+    "@babel/register": "^7.17.7",
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "sinon": "^14.0.0",
+    "sinon-chai": "^3.7.0"
   }
 }
