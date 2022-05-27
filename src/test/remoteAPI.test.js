@@ -1,17 +1,38 @@
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
 import sinonChai from 'sinon-chai';
-import sinon from 'sinon';
 import app from '../server';
-import remoteAPI from '../controller/remoteAPI';
+import validateData from '../utils/validateData';
 
 chai.use(sinonChai);
 chai.use(chaiHttp);
 chai.should();
 
-const { updateRemoteApi } = remoteAPI;
+describe('Empty string fails validation', () => {
+  it('Should return false when you pass ""', () => {
+    expect(validateData('')).equals(false);
+  });
+});
 
-describe('Test update remote API', () => {
+describe('Data of type object fails validation', () => {
+  it('Should return false when you pass {data: "new1"}', () => {
+    expect(validateData({ data: 'new1' })).equals(false);
+  });
+});
+
+describe('"new1" passes validation', () => {
+  it('Should return true when you pass "new1"', () => {
+    expect(validateData('new1')).equals(true);
+  });
+});
+
+describe('"new2" passes validation', () => {
+  it('Should return true when you pass "new2"', () => {
+    expect(validateData('new2')).equals(true);
+  });
+});
+
+describe('Controller handles bad request properly', () => {
   it('Returns error data with empty data string', () => {
     const payload = {
       new1: 'new1',
@@ -22,28 +43,25 @@ describe('Test update remote API', () => {
       .put('/api/v1/update_remote_api')
       .send(payload)
       .end((error, response) => {
-        expect(response.body).to.have.property('status');
-        expect(response.body).to.have.property('message');
-        expect(response.body).to.have.property('data');
+        expect(response.body.message).equals(
+          'Each input passed must be a valid string with minimum of 1 character.'
+        );
       });
   });
+});
 
-  it('Fakes an incomplete request', async () => {
-    const req = {
+describe('Controller handles good request properly', () => {
+  it('Returns error when provided input is okay due to hypothetical endpoint.', () => {
+    const payload = {
       new1: 'new1',
       new2: 'new2',
     };
-
-    const res = {
-      status: 'fail',
-      message: 'error message',
-      json: () => {},
-    };
-
-    sinon.stub(res, 'status').returnsThis();
-    sinon.stub(res, 'message').returnsThis();
-
-    await updateRemoteApi(req, res);
-    expect(res.status).to.be('fail');
+    chai
+      .request(app)
+      .put('/api/v1/update_remote_api')
+      .send(payload)
+      .end((error, response) => {
+        expect(response.body.message).equals('API call failed API call error.');
+      });
   });
 });
