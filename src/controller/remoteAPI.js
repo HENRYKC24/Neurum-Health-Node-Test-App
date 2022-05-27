@@ -1,18 +1,14 @@
-const axios = require('axios');
-const axiosRetry = require('axios-retry');
+import axios from 'axios';
+import axiosRetry from 'axios-retry';
+import validateData from '../utils/validateData';
 
 class RemoteAPI {
   static async updateRemoteApi(req, res) {
     const { new1, new2 } = req.body;
-    if (
-      !new1.trim() ||
-      !new2.trim() ||
-      typeof new1 != 'string' ||
-      typeof new2 != 'string'
-    ) {
+    if (!validateData(new1) || !validateData(new2)) {
       res.status(400).json({
         status: 'fail',
-        message: `Type of ${new1} and ${new2} must be a valid string with minimum of 2 characters.`,
+        message: `Each input passed must be a valid string with minimum of 1 character.`,
         data: {
           new1,
           new2,
@@ -23,9 +19,7 @@ class RemoteAPI {
     // SET AXIOS TO RETRY EACH REQUEST 3 TIMES
     axiosRetry(axios, {
       retries: 3,
-      retryDelay: (retryCount) => {
-        return retryCount * 2000; // time interval between retries
-      },
+      retryDelay: (retryCount) => retryCount * 2000, // time interval between retries
       retryCondition: (error) => error.response.status === 503,
     });
 
@@ -73,11 +67,10 @@ class RemoteAPI {
         });
       }
 
-      // MAKE A PUT REQUEST TO ALTER RESOURCE2 RETRYING 3 TIMES IF IT FAILS ON ANY
     } catch (err) {
       res.status(500).json({
         status: 'fail',
-        message: `API call failed with the error: ${err.message}`,
+        message: `API call failed API call error.`,
       });
     }
   }
